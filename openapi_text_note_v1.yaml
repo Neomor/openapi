@@ -1,0 +1,206 @@
+components:
+  schemas:
+    TextNoteListModel:
+      properties:
+        text_notes:
+          items:
+            $ref: '#/components/schemas/TextNoteModel'
+          type: array
+      type: object
+    TextNoteModel:
+      properties:
+        id:
+          type: string
+        offset_angle:
+          format: int32
+          type: integer
+        offset_value:
+          format: int32
+          type: integer
+        rotate_angle:
+          format: int32
+          type: integer
+        schedule_id:
+          type: string
+        schedule_point_id:
+          type: string
+        text_value:
+          type: string
+      required:
+      - id
+      - schedule_id
+      - schedule_point_id
+      - offset_angle
+      - offset_value
+      - rotate_angle
+      - text_value
+      type: object
+    TextNoteRequestCreate:
+      properties:
+        auth:
+          type: object
+        id:
+          type: string
+        offset_angle:
+          format: int32
+          type: integer
+        offset_value:
+          format: int32
+          type: integer
+        rotate_angle:
+          format: int32
+          type: integer
+        schedule_id:
+          type: string
+        schedule_point_id:
+          type: string
+        text_value:
+          type: string
+        time:
+          format: int32
+          type: integer
+      required:
+      - auth
+      - schedule_id
+      - schedule_point_id
+      - offset_angle
+      - offset_value
+      - rotate_angle
+      - text_value
+      - time
+      type: object
+    TextNoteRequestDelete:
+      properties:
+        auth:
+          type: object
+        text_note_ids:
+          items:
+            type: string
+          type: array
+      required:
+      - auth
+      - text_note_ids
+      type: object
+    TextNoteRequestGetList:
+      properties:
+        auth:
+          type: object
+        schedule_id:
+          type: string
+        time_from:
+          format: int64
+          type: integer
+        time_to:
+          format: int64
+          type: integer
+      required:
+      - auth
+      - schedule_id
+      type: object
+    TextNoteResponse:
+      oneOf:
+      - $ref: '#/components/schemas/TextNoteModel'
+      - properties:
+          error:
+            type: object
+        type: object
+      type: object
+    TextNoteResponseDelete:
+      oneOf:
+      - type: object
+      - properties:
+          error:
+            type: object
+        type: object
+      type: object
+    TextNoteResponseGetList:
+      oneOf:
+      - $ref: '#/components/schemas/TextNoteListModel'
+      - properties:
+          error:
+            type: object
+        type: object
+      type: object
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  description: REST API для получения, создания и удаления текстовых сносок
+  title: Сервис для редактирования сносок
+  version: v1
+openapi: 3.0.3
+paths:
+  /api/textnotes/v1/create:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextNoteRequestCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextNoteResponse'
+          description: Успешный ответ
+      summary: Создание сноски
+      tags:
+      - TextNote
+  /api/textnotes/v1/delete/{text_note_ids}:
+    delete:
+      parameters:
+      - description: ID сносок, разделённые запятой
+        in: path
+        name: text_note_ids
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextNoteResponseDelete'
+          description: Успешный ответ
+      summary: Удаление сносок
+      tags:
+      - TextNote
+  /api/textnotes/v1/list:
+    get:
+      parameters:
+      - in: query
+        name: schedule_id
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: time_from
+        required: false
+        schema:
+          format: int64
+          type: integer
+      - in: query
+        name: time_to
+        required: false
+        schema:
+          format: int64
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextNoteResponseGetList'
+          description: Успешный ответ
+      summary: Получение списка сносок
+      tags:
+      - TextNote
+security:
+- BearerAuth: []
+tags:
+- description: Операции со сносками
+  name: TextNote
